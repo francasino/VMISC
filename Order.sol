@@ -102,7 +102,7 @@ contract Order{
     //only customer
     function receivedOrder () public { 
     	require(msg.sender==customer);
-		delivery=true;
+		received=true;
 		emit receivedEvent(); // trigger event 
 
     }
