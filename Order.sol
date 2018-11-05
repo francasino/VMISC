@@ -7,7 +7,7 @@ contract Order{
 		uint id;
 		string name;
 		uint quantity;
-		string others;  // for QOs or conditions, location etc
+		string others;  // for QOs or conditions, location etc. A mapping should be used but example is kept simple
 	}
 	// key is a uint, later corresponding to the product id
 	// what we store (the value) is a Product
