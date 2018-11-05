@@ -7,7 +7,7 @@ It permits:
 
 1. Placing new order, from vendor side
 2. Check the contents of the order and accept it, from customer side
-3. Deliver the order and update the changes of the products, from vendor and deliverer side
+3. Deliver the order and update the changes of the products, from vendor and deliverer side. A simple variable stores changes, but a mapping of locations and temperatures, as well as other variables can be included. However, this example remains simple
 4. Confirm that the products have been received, from customer side.
 
 Although is a high level example, it enables full functionality and QoS. The code has been extensively commented for an easy follow up. The SC functions enable:
