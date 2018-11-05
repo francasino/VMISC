@@ -1,5 +1,5 @@
 # VMISC
-Example of a vendor management supply thourgh SC in solidity
+Example of a vendor management supply through SC in solidity
 
 The file deployed contains a functional SC written in solidity to simulate a VMI interaction.
 
