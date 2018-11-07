@@ -31,8 +31,7 @@ contract Order{
 	private bool received;
 
 
-	// event, voted event. this will trigger when we want
-	//  when a vote is cast for example, in the vote function. 
+	// event, this will trigger when we want, according to a function
 	event triggeredEvent (  // triggers new accepted order 
 	);
 
@@ -48,13 +47,13 @@ contract Order{
 
 	function Order () public { // constructor, creates order. we map starting from id=1
 	 addProduct(1,"Apples",200, "Delivey in 3 days, temperature X");
-	 addProduct(2,"Oranges",150, "Delivey in 3 days, temperature X");
+	 addProduct(2,"Oranges",150, "Delivey in 4 days, temperature Y");
 	 triggered=false;
 	 delivery=false;
 	 received=false;
 	}
 
-    // add product to mapping.   rivate because we dont want to be accesible or add products afterwards to our mapping. We only want
+    // add product to mapping.  private because we dont want to be accesible or add products afterwards to our mapping. We only want
     // our contract to be able to do that, from constructor
     // otherwise the conditions of the accepted contract could change
     function addProduct (string _name, uint _quantity, string _others) private {
