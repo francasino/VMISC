@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 contract Order{
 
-	//MODEL  a candidate
+	//MODEL  a product
 	struct Product {
 		uint id;
 		string name;
