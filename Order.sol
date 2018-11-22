@@ -2,24 +2,34 @@ pragma solidity ^0.4.24;
 
 contract Order{
 
-	//MODEL  a product
+	
 	struct Product {
 		uint id;
 		string name;
 		uint quantity;
-		string others;  // for QOs or conditions, location etc. A mapping should be used but example is kept simple
+		string others;  // for QOs or conditions, location etc
+		uint [] tracesProduct; // the ID of the traces of the product
 	}
 	// key is a uint, later corresponding to the product id
 	// what we store (the value) is a Product
 	// the information of this mapping is the set of products of the order.
 	mapping(uint => Product) private products; // public, so that w can access with a free function 
 
+	struct Traces {
+		uint id:
+		uint id_product;
+		string location;
+		string temp_owner;
+		string timestamp;
+	}
+
+	mapping(uint => Traces) private traces; // public, so that w can access with a free function 
 	//store products count
 	// since mappings cant be looped and is difficult the have a count like array
 	// we need a var to store the coutings  
 	// useful also to iterate the mapping 
 	uint private productsCount;
-	
+	uint private tracesCount;
 
 	//declare address of the participants
 	address constant public customer = 0xE0f5206BBD039e7b0592d8918820024e2a7437b9;
@@ -31,7 +41,8 @@ contract Order{
 	private bool received;
 
 
-	// event, this will trigger when we want, according to a function
+	// event, voted event. this will trigger when we want
+	//  when a vote is cast for example, in the vote function. 
 	event triggeredEvent (  // triggers new accepted order 
 	);
 
@@ -46,14 +57,23 @@ contract Order{
 
 
 	function Order () public { // constructor, creates order. we map starting from id=1
-	 addProduct(1,"Apples",200, "Delivey in 3 days, temperature X");
-	 addProduct(2,"Oranges",150, "Delivey in 4 days, temperature Y");
-	 triggered=false;
-	 delivery=false;
-	 received=false;
+        addProduct(1,"Apples",200, "Delivey in 3 days, temperature X");
+        addProduct(2,"Oranges",150, "Delivey in 3 days, temperature X");
+        addTrace(1,1,"some coordinates", "name or address of actual owner","timestamp");
+        addTrace(2,2,"some coordinates", "name or address of actual owner","timestamp");
+        triggered=false;
+        delivery=false;
+        received=false;
 	}
 
-    // add product to mapping.  private because we dont want to be accesible or add products afterwards to our mapping. We only want
+
+	//PRODUCT OPERATIONS******************************************
+	// enables product creation
+	// get product
+	// get total for externally looping the mapping
+	// update others.
+
+    // add product to mapping. private because we dont want to be accesible or add products afterwards to our mapping. We only want
     // our contract to be able to do that, from constructor
     // otherwise the conditions of the accepted contract could change
     function addProduct (string _name, uint _quantity, string _others) private {
@@ -64,10 +84,19 @@ contract Order{
     }
 
     // returns the number of products, needed to iterate the mapping and to know info about the order.
-    //only customer 
     function getNumberOfProducts () returns (uint){
-    	require(msg.sender==customer);
+    	require(msg.sender==customer || msg.sender==vendor || msg.sender==deliverer);
+    	
     	return productsCount;
+    }
+
+     // only vendor or deliverers
+    function UpdateProduct (uint _productId, string _others) public { 
+    	require(msg.sender==vendor || msg.sender==deliverer);
+    	require(_productId > 0 && _productId <= productsCount); 
+
+		products[_productId].others = _others;  // update conditions
+		emit updateEvent(); // trigger event 
     }
 
     // function to check the contents of the contract, the customer will check it and later will trigger if correct
@@ -75,13 +104,81 @@ contract Order{
     // customer will loop outside for this, getting the number of products before with getNumberOfProducts
     function getOrder (uint _productId) returns (Product) {
     	require(msg.sender==customer);
-
     	require(_productId > 0 && _productId <= productsCount); 
 
     	return products[_productId];
     }
 
-    //this function triggers the contract, enables it since the customer accepts it 
+    //TRACES OPERATIONS********************************************
+    // enables add trace to a product
+    // enables total number of traces to loop
+    // get a trace
+    // gets the total number of traces of a product. for statistical purposes
+    // get the list of traces of a product, that can be consulter afterwards using get a trace
+
+    function addTrace (uint _productId, string _location, string _temp_owner, string _timestamp) public {  // acts as update location
+    	require(msg.sender==vendor || msg.sender==deliverer);
+    	require(_productId > 0 && _productId <= productsCount); // check if product exists
+    	
+    	tracesCount ++; // inc count at the begining. represents ID also. 
+    	traces[tracesCount] = Trace(tracesCount, _location,_temp_owner,_timestamp);
+    	products[_productId].tracesProduct.push(tracesCount); // we store the trace reference in the corresponding product
+    	// this will give us the set of ID traces about our productid
+    	emit updateEvent();
+    }
+
+    // returns the number of traced locations
+    //useful for generic statistical purposes
+    function getNumberOfTraces () returns (uint) public{
+    	require(msg.sender==customer || msg.sender==vendor || msg.sender==deliverer);
+    	
+    	return tracesCount;
+    }
+
+
+    // get a trace
+    function getTrace (uint _traceId) returns (Trace) public {
+    	require(msg.sender==customer || msg.sender==deliverer);
+    	require(_traceId > 0 && _traceId <= tracesCount); 
+
+    	return traces[_traceId];
+    }
+
+
+    // returns the number of traced locations for specific product
+    function getNumberOfTracesProduct (uint _productId) returns (uint) public{
+    	require(msg.sender==customer || msg.sender==vendor || msg.sender==deliverer);
+    	require(_productId > 0 && _productId <= productsCount); // check if product exists
+    	
+    	return _productId.tracesProduct.length;
+    }
+
+
+
+    // get the array of traces of a product, later we can loop them using getTrace to obtain the data
+    function getTracesProduct (uint _productId) returns (uint []) public {
+    	require(msg.sender==customer || msg.sender==deliverer);
+    	require(_productId > 0 && _productId <= productsCount); // check if product exists
+
+    	return _productId.tracesProduct;
+    }
+
+
+    //EVENT AND SC OPERATIONS********************************************************
+    //  computes hash of transaction
+    // several event triggers
+
+    function retrieveHash () public returns (uint){ 
+    	//computehash according to unique characteristics
+    	// hash has to identify a unique transaction so timestamp and locations and products should be used.
+    	// this example hashes the transaction as a whole.
+    	uint nonce;
+    	bytes32 hash = sha3(block.number, msg.data, nonce++) 
+    	return hash;
+
+    }
+
+     //this function triggers the contract, enables it since the customer accepts it 
     // only customer
     function triggerContract () public { 
     	require(msg.sender==customer);
@@ -106,11 +203,5 @@ contract Order{
 
     }
 
-    // only vendor or deliverers
-    function UpdateProduct (uint _productId, string _others) public { 
-    	require(msg.sender==vendor || msg.sender==deliverer);
-		products[_productId].others = _others;  // update conditions
-		emit updateEvent(); // trigger event 
-    }
 
 }
