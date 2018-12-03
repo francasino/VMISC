@@ -9,13 +9,14 @@ contract Order{
 		uint quantity;
 		string others;  // for QOs or conditions, location etc
 		uint [] tracesProduct; // the ID of the traces of the product
+        uint [] temperaturesProduct;
 	}
 	// key is a uint, later corresponding to the product id
 	// what we store (the value) is a Product
 	// the information of this mapping is the set of products of the order.
 	mapping(uint => Product) private products; // public, so that w can access with a free function 
 
-	struct Traces {
+	struct Trace {
 		uint id:
 		uint id_product;
 		string location;
@@ -23,11 +24,31 @@ contract Order{
 		string timestamp;
 	}
 
-	mapping(uint => Traces) private traces; // public, so that w can access with a free function 
+	mapping(uint => Trace) private traces; // public, so that w can access with a free function 
+
+
+
+
+    struct Temperature {  // we use celsious
+        uint id:
+        uint id_product;
+        uint celsius; // the number
+        string timestamp;
+    }
+
+    mapping(uint => Temperature) private temperatures; // public, so that w can access with a free function 
+
+
+
+
+
+
+
 	//store products count
 	// since mappings cant be looped and is difficult the have a count like array
 	// we need a var to store the coutings  
 	// useful also to iterate the mapping 
+    uint private temperaturesCount;
 	uint private productsCount;
 	uint private tracesCount;
 
@@ -109,12 +130,13 @@ contract Order{
     	return products[_productId];
     }
 
-    //TRACES OPERATIONS********************************************
+    //TRACES  and temperatures OPERATIONS********************************************
     // enables add trace to a product
     // enables total number of traces to loop
     // get a trace
     // gets the total number of traces of a product. for statistical purposes
     // get the list of traces of a product, that can be consulter afterwards using get a trace
+    // the same for temperatures
 
     function addTrace (uint _productId, string _location, string _temp_owner, string _timestamp) public {  // acts as update location
     	require(msg.sender==vendor || msg.sender==deliverer);
@@ -127,12 +149,32 @@ contract Order{
     	emit updateEvent();
     }
 
+
+    function addTemperature (uint _productId, string _celsius, string _timestamp) public {  // acts as update temperature
+        require(msg.sender==vendor || msg.sender==deliverer);
+        require(_productId > 0 && _productId <= productsCount); // check if product exists
+        
+        temperaturesCount ++; // inc count at the begining. represents ID also. 
+        temperatures[temperaturesCount] = Trace(temperaturesCount, _celsius,_timestamp);
+        products[_productId].temperaturesProduct.push(temperaturesCount); // we store the trace reference in the corresponding product
+        // this will give us the set of ID temperatures about our productid
+        emit updateEvent();
+    }
+
     // returns the number of traced locations
     //useful for generic statistical purposes
     function getNumberOfTraces () returns (uint) public{
     	require(msg.sender==customer || msg.sender==vendor || msg.sender==deliverer);
     	
     	return tracesCount;
+    }
+
+     // returns the number of registered temperatures
+    //useful for generic statistical purposes
+    function getNumberOfTemperatures () returns (uint) public{
+        require(msg.sender==customer || msg.sender==vendor || msg.sender==deliverer);
+        
+        return tempreaturesCount;
     }
 
 
@@ -142,6 +184,14 @@ contract Order{
     	require(_traceId > 0 && _traceId <= tracesCount); 
 
     	return traces[_traceId];
+    }
+
+    // get a temperature
+    function getTemperature (uint _temperatureId) returns (Temperature) public {
+        require(msg.sender==customer || msg.sender==deliverer);
+        require(_temperatureId > 0 && _temperatureId <= temperaturesCount); 
+
+        return temperatures[_temperatureId];
     }
 
 
@@ -154,6 +204,14 @@ contract Order{
     }
 
 
+        // returns the number of registered temperatures for specific product
+    function getNumberOfTemperaturesProduct (uint _productId) returns (uint) public{
+        require(msg.sender==customer || msg.sender==vendor || msg.sender==deliverer);
+        require(_productId > 0 && _productId <= productsCount); // check if product exists
+        
+        return _productId.temperaturesProduct.length;
+    }
+
 
     // get the array of traces of a product, later we can loop them using getTrace to obtain the data
     function getTracesProduct (uint _productId) returns (uint []) public {
@@ -161,6 +219,14 @@ contract Order{
     	require(_productId > 0 && _productId <= productsCount); // check if product exists
 
     	return _productId.tracesProduct;
+    }
+
+        // get the array of temperatures of a product, later we can loop them using getTrace to obtain the data
+    function getTemperaturesProduct (uint _productId) returns (uint []) public {
+        require(msg.sender==customer || msg.sender==deliverer);
+        require(_productId > 0 && _productId <= productsCount); // check if product exists
+
+        return _productId.temperaturesProduct;
     }
 
 
