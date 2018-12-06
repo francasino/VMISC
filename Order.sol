@@ -127,7 +127,7 @@ contract Order{
     // function to check the contents of the contract, the customer will check it and later will trigger if correct
     // only customer can check it 
     // customer will loop outside for this, getting the number of products before with getNumberOfProducts
-    function getOrder (uint _productId) public view returns (Product) {
+    function getProduct (uint _productId) public view returns (Product) {
     	require(msg.sender==customer);
     	require(_productId > 0 && _productId <= productsCount); 
 
