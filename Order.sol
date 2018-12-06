@@ -99,7 +99,7 @@ contract Order{
     // our contract to be able to do that, from constructor
     // otherwise the conditions of the accepted contract could change
     function addProduct (string _name, uint _quantity, string _others) private {
-        //require(msg.sender==vendor);
+        require(msg.sender==vendor);
     	productsCount ++; // inc count at the begining. represents ID also. 
     	products[productsCount].id = productsCount; 
         products[productsCount].name = _name;
@@ -143,7 +143,7 @@ contract Order{
     // the same for temperatures
 
     function addTrace (uint _productId, string _location, string _temp_owner, string _timestamp) public {  // acts as update location
-    	//require(msg.sender==vendor || msg.sender==deliverer);
+    	require(msg.sender==vendor || msg.sender==deliverer);
     	require(_productId > 0 && _productId <= productsCount); // check if product exists
     	
     	tracesCount ++; // inc count at the begining. represents ID also. 
@@ -187,7 +187,7 @@ contract Order{
 
     // get a trace
     function getTrace (uint _traceId) public view returns (Trace) {
-    	require(msg.sender==customer || msg.sender==deliverer);
+    	require(msg.sender==customer );
     	require(_traceId > 0 && _traceId <= tracesCount); 
 
     	return traces[_traceId];
@@ -195,7 +195,7 @@ contract Order{
 
     // get a temperature
     function getTemperature (uint _temperatureId) public view returns (Temperature) {
-        require(msg.sender==customer || msg.sender==deliverer);
+        require(msg.sender==customer );
         require(_temperatureId > 0 && _temperatureId <= temperaturesCount); 
 
         return temperatures[_temperatureId];
@@ -222,7 +222,7 @@ contract Order{
 
     // get the array of traces of a product, later we can loop them using getTrace to obtain the data
     function getTracesProduct (uint _productId) public view returns (uint []) {
-    	require(msg.sender==customer || msg.sender==deliverer);
+    	require(msg.sender==customer );
     	require(_productId > 0 && _productId <= productsCount); // check if product exists
 
     	return products[_productId].tracesProduct;
@@ -230,7 +230,7 @@ contract Order{
 
         // get the array of temperatures of a product, later we can loop them using getTrace to obtain the data
     function getTemperaturesProduct (uint _productId) public view returns (uint []) {
-        require(msg.sender==customer || msg.sender==deliverer);
+        require(msg.sender==customer );
         require(_productId > 0 && _productId <= productsCount); // check if product exists
 
         return products[_productId].temperaturesProduct;
