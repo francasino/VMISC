@@ -246,7 +246,7 @@ contract Order{
     	// hash has to identify a unique transaction so timestamp and locations and products should be used.
     	// this example hashes a transaction as a whole.
         //return keccak256(products[_productId]);
-        return keccak256(abi.encodePacked(products[_productId].id, products[_productId].name, products[_productId].quantity, products[_productId].others, products[_productId].numberoftraces, products[_productId].numberoftemperatures, products[_productId].maker));
+        return keccak256(abi.encodePacked(block.number,msg.data,products[_productId].id, products[_productId].name, products[_productId].quantity, products[_productId].others, products[_productId].numberoftraces, products[_productId].numberoftemperatures, products[_productId].maker));
     	//return keccak256(traces+products+temperatures);
 
     }
