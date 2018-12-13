@@ -39,6 +39,6 @@ The code can be used if you cite it properly:
     author = {Fran Casino},
     title = {A Smart Contract to Enable VMI},
     howpublished = {\url{https://github.com/francasino/VMISC}},
-    year=2018,
+    year={2018}
 }
 
