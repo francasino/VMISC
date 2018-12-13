@@ -33,3 +33,12 @@ Although is a high level example, it enables full functionality and QoS. The cod
 
 >Checks the products and confirms that products have been received.
 
+The code can be used if you cite it properly:
+
+@misc{CasinoVMISC2018,
+    author = {Fran Casino},
+    title = {A Smart Contract to Enable VMI},
+    howpublished = {\url{https://github.com/francasino/VMISC}},
+    year=2018,
+}
+
