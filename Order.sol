@@ -128,7 +128,7 @@ contract Order{
     // only customer can check it 
     // customer will loop outside for this, getting the number of products before with getNumberOfProducts
     function getProduct (uint _productId) public view returns (Product) {
-    	require( msg.sender==customer);
+    	require( msg.sender==vendor || msg.sender==customer);
     	require(_productId > 0 && _productId <= productsCount); 
 
     	return products[_productId];
